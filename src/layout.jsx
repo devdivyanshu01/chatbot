@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import ChatScreen from "./chat";
 import ChatHistory from "./history";
-import Messages from "./messages";
 import ChatHistoryMobile from "./mobilehistory";
 
 const initialChats = [
@@ -26,6 +25,8 @@ const initialChats = [
 const Layout = () => {
   const [chats, setChats] = useState(initialChats);
   const [currentChatId, setCurrentChatId] = useState(initialChats[0].id);
+  const [showHistory, setShowHistory] = useState(false);
+
 
   const handleNewChat = () => {
     const newId = chats.length ? chats[chats.length - 1].id + 1 : 1;
@@ -62,6 +63,8 @@ const Layout = () => {
   chats={chats}
   currentChatId={currentChatId}
   onSelect={setCurrentChatId}
+   showHistory={showHistory}
+  setShowHistory={setShowHistory}
 />
 
     </div>

@@ -5,6 +5,8 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const navigate = useNavigate();
+  const [setShowHistory] = useState(false);
+
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -69,15 +71,18 @@ const Header = () => {
           <a href='/' style={{
             ...styles.navItem,
             fontSize: isMobile ? "0.9rem" : styles.navItem.fontSize
-          }}>Home</a>
+          }}onMouseOver={e => e.currentTarget.style.textDecoration = "underline"}
+            onMouseOut={e => e.currentTarget.style.textDecoration = "none"}>Home</a>
           <a href="https://divyansh01.netlify.app" style={{
             ...styles.navItem,
             fontSize: isMobile ? "0.9rem" : styles.navItem.fontSize
-          }}>About</a>
+          }}onMouseOver={e => e.currentTarget.style.textDecoration = "underline"}
+            onMouseOut={e => e.currentTarget.style.textDecoration = "none"}>About</a>
           <Link to="#" style={{
             ...styles.navItem,
             fontSize: isMobile ? "0.9rem" : styles.navItem.fontSize
-          }}>Contact</Link>
+          }}onMouseOver={e => e.currentTarget.style.textDecoration = "underline"}
+            onMouseOut={e => e.currentTarget.style.textDecoration = "none"}>Contact</Link>
           {isMobile && (
   <div
     onClick={() => {
@@ -85,14 +90,17 @@ const Header = () => {
     }}
   >
     <Link
-      to="/mobilehistory"
-      style={{
+      to="/mobilehistory" 
+      >
+              <span onClick={()=>{setShowHistory(true)}} 
+              style={{
         ...styles.navItem,
         fontSize: "0.9rem",
-        display: "block"
       }}
-    >
-      Chat History
+    onMouseOver={e => e.currentTarget.style.textDecoration = "underline"}
+            onMouseOut={e => e.currentTarget.style.textDecoration = "none"}
+            >
+      Chat History</span>
     </Link>
   </div>
 )}
