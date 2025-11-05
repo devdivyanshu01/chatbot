@@ -120,7 +120,7 @@ const Header = () => {
             ...styles.authBox,
             fontSize: isMobile ? "0.8rem" : styles.authBox.fontSize
           }}>
-            <Link to='/signin' style={{
+            <Link to='/signup' style={{
               ...styles.navItem,
               fontSize: isMobile ? "0.85rem" : styles.navItem.fontSize
             }}
