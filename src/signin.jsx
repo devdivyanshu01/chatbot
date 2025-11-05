@@ -16,8 +16,6 @@ const SignIn = () => {
     e.preventDefault();
     console.log("Signed in with details:", form);
   };
-
-
 const handleGoogleLogin = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
@@ -190,16 +188,16 @@ const handleGithubLogin = async () => {
 
       <p style={{ textAlign: "center", color: "#666" }}>
         Don't have an account?
-        <a href="/signup" style={{ textDecoration: 'underline', color: 'white', cursor: 'pointer' }}>
+        <Link href="/signup" style={{ textDecoration: 'underline', color: 'white', cursor: 'pointer' }}>
           {" "}SignUP
-        </a>
+        </Link>
       </p>
 
       <p style={{ textAlign: "center", color: "#666", fontSize: "0.9rem" }}>
         By signing in, you agree to our{" "}
-        <a href="/terms" style={{ color: "#007bff" }}>Terms of Service</a>{" "}
+        <Link href="/terms" style={{ color: "#007bff" }}>Terms of Service</Link>{" "}
         and{" "}
-        <a href="/privacy" style={{ color: "#007bff" }}>Privacy Policy</a>
+        <Link href="/privacy" style={{ color: "#007bff" }}>Privacy Policy</Link>
       </p>
     </div>
   );

@@ -179,15 +179,15 @@ const handleGithubLogin = async () => {
 
       <p style={{ textAlign: "center", color: "#666" }}>
         Already have an account?
-        <a href="/signin" style={{ textDecoration: 'underline', color: 'white', cursor: 'pointer' }}>
+        <Link href="/signin" style={{ textDecoration: 'underline', color: 'white', cursor: 'pointer' }}>
           {" "}Sign In
-        </a>
+        </Link>
       </p>
 
       <p style={{ textAlign: "center", color: "#666", fontSize: "0.9rem" }}>
         By signing up, you agree to our{" "}
-        <a href="/terms" style={{ color: "#007bff" }}>Terms of Service</a> and{" "}
-        <a href="/privacy" style={{ color: "#007bff" }}>Privacy Policy</a>.
+        <Link href="/terms" style={{ color: "#007bff" }}>Terms of Service</Link> and{" "}
+        <Link href="/privacy" style={{ color: "#007bff" }}>Privacy Policy</Link>.
       </p>
     </div>
   );
