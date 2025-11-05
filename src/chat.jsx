@@ -4,7 +4,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-  const [animatePlane, setAnimatePlane] = useState(false); // NEW
+  const [animatePlane, setAnimatePlane] = useState(false);
   const messagesEndRef = useRef(null);
 
   const currentChat = chats.find((chat) => chat.id === currentChatId);
@@ -21,46 +21,60 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
     setAnimatePlane(true);
 
     const userMessage = { sender: "user", text: input };
-    const updatedChats = chats.map((chat) =>
-      chat.id === currentChatId
-        ? { ...chat, messages: [...chat.messages, userMessage] }
-        : chat
+    setChats((prev) =>
+      prev.map((chat) =>
+        chat.id === currentChatId
+          ? { ...chat, messages: [...chat.messages, userMessage] }
+          : chat
+      )
     );
-    setChats(updatedChats);
     setInput("");
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
-      });
+      let fullReply = "";
 
-      const data = await response.json();
-      const botReply = { sender: "bot", text: data.reply };
+      const result = await window.puter.ai.chat(
+        [
+          { role: "system", content: "You are a helpful chatbot." },
+          { role: "user", content: input },
+        ],
+        { model: "gpt-4.1-mini" }
+      );
 
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
+      // Case 1: Streaming response
+      if (typeof result[Symbol.asyncIterator] === "function") {
+        for await (const chunk of result) {
+          fullReply += chunk.delta || chunk;
+        }
+      }
+      // Case 2: Normal response object
+      else if (result?.choices?.length) {
+        fullReply = result.choices[0].message.content;
+      }
+
+      const botReply = { sender: "bot", text: fullReply || "⚠ No reply" };
+      setChats((prev) =>
+        prev.map((chat) =>
           chat.id === currentChatId
             ? { ...chat, messages: [...chat.messages, botReply] }
             : chat
         )
       );
-    } catch (error) {
-      console.error("Error from API:", error);
-      const errorReply = { sender: "bot", text: "API error, Try again later." };
-      setChats((prevChats) =>
-        prevChats.map((chat) =>
+    } catch (err) {
+      console.error("Puter.js error:", err);
+      const botReply = { sender: "bot", text: "⚠ Error contacting API" };
+      setChats((prev) =>
+        prev.map((chat) =>
           chat.id === currentChatId
-            ? { ...chat, messages: [...chat.messages, errorReply] }
+            ? { ...chat, messages: [...chat.messages, botReply] }
             : chat
         )
       );
     }
 
     setTimeout(() => {
-      setAnimatePlane(false); // reset animation
+      setAnimatePlane(false);
       setLoading(false);
     }, 1000);
   };
@@ -84,7 +98,6 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
           .msg{ marginTop: '0'; marginBottom: '0'; bottom: 60px; }
         }
 
-        /* Plane flying animation */
         @keyframes planeFly {
           0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
           50% { transform: translate(40px, -30px) rotate(20deg) scale(1.1); opacity: 0.8; }
@@ -155,16 +168,13 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
             flex: 1,
             overflowY: "auto",
             padding: "1rem",
-            paddingBottom: "1rem",
             display: "flex",
             flexDirection: "column",
             gap: "0.6rem",
             color: "#fff",
             backgroundColor: "#222",
-            height: "fit-content",
             marginTop: "50px",
             marginBottom: "70px",
-            minHeight: "fit-content",
             maxHeight: "80%",
           }}
         >
@@ -203,7 +213,6 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
             alignItems: "center",
             padding: "1rem",
             borderTop: "1px solid #333",
-            backgroundColor: "none",
             backdropFilter: "blur(10px)",
             position: "fixed",
             bottom: 0,

@@ -73,7 +73,7 @@ const Header = () => {
             fontSize: isMobile ? "0.9rem" : styles.navItem.fontSize
           }}onMouseOver={e => e.currentTarget.style.textDecoration = "underline"}
             onMouseOut={e => e.currentTarget.style.textDecoration = "none"}>Home</a>
-          <a href="https://divyansh01.netlify.app" style={{
+          <a href="https://divyanshu01.vercel.app" style={{
             ...styles.navItem,
             fontSize: isMobile ? "0.9rem" : styles.navItem.fontSize
           }}onMouseOver={e => e.currentTarget.style.textDecoration = "underline"}
@@ -86,7 +86,7 @@ const Header = () => {
           {isMobile && (
   <div
     onClick={() => {
-      setMenuOpen(false); // Close the side menu
+      setMenuOpen(false); 
     }}
   >
     <Link
@@ -120,19 +120,19 @@ const Header = () => {
             ...styles.authBox,
             fontSize: isMobile ? "0.8rem" : styles.authBox.fontSize
           }}>
-            <a href="/signup" style={{
+            <Link to='/signin' style={{
               ...styles.navItem,
               fontSize: isMobile ? "0.85rem" : styles.navItem.fontSize
             }}
             onMouseOver={e => e.currentTarget.style.textDecoration = "underline"}
-            onMouseOut={e => e.currentTarget.style.textDecoration = "none"}>SignUp</a>
+            onMouseOut={e => e.currentTarget.style.textDecoration = "none"}>SignUp</Link>
             <span>or</span>
-            <a href="/signin" style={{
+            <Link to="/signin" style={{
               ...styles.navItem,
               fontSize: isMobile ? "0.85rem" : styles.navItem.fontSize
             }}
             onMouseOver={e => e.currentTarget.style.textDecoration = "underline"}
-            onMouseOut={e => e.currentTarget.style.textDecoration = "none"}>Signin</a>
+            onMouseOut={e => e.currentTarget.style.textDecoration = "none"}>Signin</Link>
           </span>
         </nav>
       </div>

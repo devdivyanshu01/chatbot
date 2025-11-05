@@ -7,20 +7,11 @@ const initialChats = [
   {
     id: 1,
     messages: [
-      { sender: "bot", text: "Hello! How can I help you?" },
-      { sender: "user", text: "Hi! Tell me a joke." },
-      { sender: "bot", text: "Why did the chicken cross the road? To get to the other side!" },
+      { sender: "bot", text: "Hello! How can I help you?" }
     ],
-  },
-  {
-    id: 2,
-    messages: [
-      { sender: "bot", text: "Welcome back!" },
-      { sender: "user", text: "What's the weather today?" },
-      { sender: "bot", text: "It's sunny and warm." },
-    ],
-  },
+  }
 ];
+
 
 const Layout = () => {
   const [chats, setChats] = useState(initialChats);

@@ -23,7 +23,7 @@ const ChatHistoryMobile = ({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  if (!isMobile || showHistory !== true) {
+  if (!isMobile || !showHistory ) {
     return null; // Don't render on desktop or if hidden
   }
 
