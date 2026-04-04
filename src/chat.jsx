@@ -16,68 +16,70 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
   }, []);
 
   const handleSend = async () => {
-    if (!input.trim() || loading) return;
+  if (!input.trim() || loading) return;
 
-    setAnimatePlane(true);
+  setAnimatePlane(true);
 
-    const userMessage = { sender: "user", text: input };
+  const userMessage = { sender: "user", text: input };
+
+  setChats((prev) =>
+    prev.map((chat) =>
+      chat.id === currentChatId
+        ? { ...chat, messages: [...chat.messages, userMessage] }
+        : chat
+    )
+  );
+
+  setInput("");
+  setLoading(true);
+
+  try {
+    // ✅ CALL YOUR BACKEND INSTEAD OF GEMINI DIRECTLY
+    const response = await fetch("http://localhost:5000/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: userMessage.text }),
+    });
+
+    const data = await response.json();
+    console.log("Backend Response:", data);
+
+    const botReply = {
+      sender: "bot",
+      text: data.reply || "⚠ No reply",
+    };
+
     setChats((prev) =>
       prev.map((chat) =>
         chat.id === currentChatId
-          ? { ...chat, messages: [...chat.messages, userMessage] }
+          ? { ...chat, messages: [...chat.messages, botReply] }
           : chat
       )
     );
-    setInput("");
-    setLoading(true);
+  } catch (err) {
+    console.error("API error:", err);
 
-    try {
-      let fullReply = "";
+    const botReply = {
+      sender: "bot",
+      text: "⚠ Error contacting server",
+    };
 
-      const result = await window.puter.ai.chat(
-        [
-          { role: "system", content: "You are a helpful chatbot." },
-          { role: "user", content: input },
-        ],
-        { model: "gpt-4.1-mini" }
-      );
+    setChats((prev) =>
+      prev.map((chat) =>
+        chat.id === currentChatId
+          ? { ...chat, messages: [...chat.messages, botReply] }
+          : chat
+      )
+    );
+  }
 
-      // Case 1: Streaming response
-      if (typeof result[Symbol.asyncIterator] === "function") {
-        for await (const chunk of result) {
-          fullReply += chunk.delta || chunk;
-        }
-      }
-      // Case 2: Normal response object
-      else if (result?.choices?.length) {
-        fullReply = result.choices[0].message.content;
-      }
-
-      const botReply = { sender: "bot", text: fullReply || "⚠ No reply" };
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat.id === currentChatId
-            ? { ...chat, messages: [...chat.messages, botReply] }
-            : chat
-        )
-      );
-    } catch (err) {
-      console.error("Puter.js error:", err);
-      const botReply = { sender: "bot", text: "⚠ Error contacting API" };
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat.id === currentChatId
-            ? { ...chat, messages: [...chat.messages, botReply] }
-            : chat
-        )
-      );
-    }
-
-    setTimeout(() => {
-      setAnimatePlane(false);
-      setLoading(false);
-    }, 1000);
-  };
+  setTimeout(() => {
+    setAnimatePlane(false);
+    setLoading(false);
+  }, 800);
+};
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
