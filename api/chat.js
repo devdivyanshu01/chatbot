@@ -15,24 +15,17 @@ export default async function handler(req, res) {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: "gemini-2.5-flash", // ✅ correct
     });
 
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: message }],
-        },
-      ],
-    });
+    const result = await model.generateContent(message);
 
     const reply = result.response.text();
 
     return res.status(200).json({ reply });
 
   } catch (err) {
-    console.error(err);
+    console.error("❌ API ERROR:", err);
     return res.status(500).json({
       error: err.message || "Internal Server Error",
     });
