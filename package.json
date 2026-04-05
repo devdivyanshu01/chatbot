@@ -2,30 +2,17 @@
   "name": "chatbot",
   "version": "1.0.0",
   "type": "commonjs",
-  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
-  "main": "eslint.config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "react-scripts start",
     "dev": "vite",
+    "start": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/devdivyanshu01/chatbot.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/devdivyanshu01/chatbot/issues"
-  },
-  "homepage": "https://github.com/devdivyanshu01/chatbot#readme",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@vitejs/plugin-react": "^6.0.1",
     "cors": "^2.8.6",
+    "dotenv": "^17.4.0",
     "express": "^5.2.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

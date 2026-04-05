@@ -16,70 +16,72 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
   }, []);
 
   const handleSend = async () => {
-  if (!input.trim() || loading) return;
+    if (!input.trim() || loading || !currentChat) return;
 
-  setAnimatePlane(true);
+    setAnimatePlane(true);
 
-  const userMessage = { sender: "user", text: input };
-
-  setChats((prev) =>
-    prev.map((chat) =>
-      chat.id === currentChatId
-        ? { ...chat, messages: [...chat.messages, userMessage] }
-        : chat
-    )
-  );
-
-  setInput("");
-  setLoading(true);
-
-  try {
-    // ✅ CALL YOUR BACKEND INSTEAD OF GEMINI DIRECTLY
-    const response = await fetch("http://localhost:5000/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ message: userMessage.text }),
-    });
-
-    const data = await response.json();
-    console.log("Backend Response:", data);
-
-    const botReply = {
-      sender: "bot",
-      text: data.reply || "⚠ No reply",
-    };
+    const userMessage = { sender: "user", text: input };
 
     setChats((prev) =>
       prev.map((chat) =>
         chat.id === currentChatId
-          ? { ...chat, messages: [...chat.messages, botReply] }
+          ? { ...chat, messages: [...chat.messages, userMessage] }
           : chat
       )
     );
-  } catch (err) {
-    console.error("API error:", err);
 
-    const botReply = {
-      sender: "bot",
-      text: "⚠ Error contacting server",
-    };
+    setInput("");
+    setLoading(true);
 
-    setChats((prev) =>
-      prev.map((chat) =>
-        chat.id === currentChatId
-          ? { ...chat, messages: [...chat.messages, botReply] }
-          : chat
-      )
-    );
-  }
+    try {
+      const response = await fetch("http://localhost:5000/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: userMessage.text }),
+      });
 
-  setTimeout(() => {
-    setAnimatePlane(false);
-    setLoading(false);
-  }, 800);
-};
+      const data = await response.json(); // ✅ always parse
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Server error");
+      }
+
+      const botReply = {
+        sender: "bot",
+        text: data?.reply || "⚠ No reply from server",
+      };
+
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.id === currentChatId
+            ? { ...chat, messages: [...chat.messages, botReply] }
+            : chat
+        )
+      );
+    } catch (err) {
+      console.error("API error:", err);
+
+      const botReply = {
+        sender: "bot",
+        text: `⚠ ${err.message || "Error contacting server"}`,
+      };
+
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.id === currentChatId
+            ? { ...chat, messages: [...chat.messages, botReply] }
+            : chat
+        )
+      );
+    }
+
+    setTimeout(() => {
+      setAnimatePlane(false);
+      setLoading(false);
+    }, 800);
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -137,13 +139,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
             maxHeight: "50px",
           }}
         >
-          <h1
-            style={{
-              fontSize: "1.4rem",
-              fontWeight: "600",
-              marginLeft: "1rem",
-            }}
-          >
+          <h1 style={{ fontSize: "1.4rem", fontWeight: "600", marginLeft: "1rem" }}>
             Kya haal hai?
           </h1>
           <button
@@ -180,7 +176,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
             maxHeight: "80%",
           }}
         >
-          {currentChat?.messages.map((msg, idx) => (
+          {currentChat?.messages?.map((msg, idx) => (
             <div
               key={idx}
               style={{
@@ -198,6 +194,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
                     msg.sender === "bot" ? "#2c2c2c" : "#000000ff",
                   border: "1px solid #333",
                   fontSize: "0.95rem",
+                  whiteSpace: "pre-wrap", // ✅ FIX: handle \n properly
                 }}
               >
                 {msg.text}
