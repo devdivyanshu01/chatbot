@@ -15,34 +15,6 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ✅ SAFE FETCH FUNCTION (handles non-JSON + retries)
-  const fetchWithRetry = async (url, options, retries = 2) => {
-    try {
-      const res = await fetch(url, options);
-
-      const text = await res.text(); // 🔥 read raw text first
-
-      let data;
-      try {
-        data = JSON.parse(text); // try parsing JSON
-      } catch {
-        throw new Error(text || "Invalid server response");
-      }
-
-      if (!res.ok) {
-        throw new Error(data?.error || "Server error");
-      }
-
-      return data;
-    } catch (err) {
-      if (retries > 0) {
-        await new Promise((r) => setTimeout(r, 1000)); // wait 1s
-        return fetchWithRetry(url, options, retries - 1);
-      }
-      throw err;
-    }
-  };
-
   const handleSend = async () => {
     if (!input.trim() || loading || !currentChat) return;
 
@@ -62,13 +34,27 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
     setLoading(true);
 
     try {
-      const data = await fetchWithRetry("/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ message: userMessage.text }),
       });
+
+      // 🔥 FIX: safely handle non-JSON responses
+      const text = await response.text();
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(text || "Invalid server response");
+      }
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Server error");
+      }
 
       const botReply = {
         sender: "bot",
@@ -88,11 +74,11 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
       const botReply = {
         sender: "bot",
         text:
-          err.message.includes("503")
-            ? "⚠ Server busy (Gemini high load). Try again."
-            : err.message.includes("API key")
-            ? "⚠ API key issue. Check backend."
-            : "⚠ Error contacting server",
+          err.message?.includes("503")
+            ? "⚠ Server busy, try again"
+            : err.message?.includes("API key")
+            ? "⚠ API key expired/invalid"
+            : err.message || "⚠ Error contacting server",
       };
 
       setChats((prev) =>
@@ -126,6 +112,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
           .chat-input { padding: 0.4rem 0.6rem !important; max-height: 50px; }
           .chat-input input { padding: 0.4rem 0.6rem !important; font-size: 0.85rem; max-height: 30px; }
           .chat-input button { padding: 0.4rem 0.6rem !important; font-size: 0.85rem; margin-right: 1rem !important; max-height: 30px; }
+          .msg{ marginTop: '0'; marginBottom: '0'; bottom: 60px; }
         }
 
         @keyframes planeFly {
@@ -161,6 +148,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
             alignItems: "center",
             position: "sticky",
             top: "50px",
+            height: "100%",
             maxHeight: "50px",
           }}
         >
@@ -178,6 +166,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
               cursor: "pointer",
               marginRight: "1rem",
               fontSize: "1rem",
+              maxHeight: "40px",
             }}
           >
             +
@@ -236,6 +225,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
             alignItems: "center",
             padding: "1rem",
             borderTop: "1px solid #333",
+            backdropFilter: "blur(10px)",
             position: "fixed",
             bottom: 0,
             width: screenWidth,
@@ -256,11 +246,11 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
               borderRadius: "8px",
               border: "1px solid #444",
               backgroundColor: "#1a1a1a",
+              backdropFilter: "blur(10px)",
               color: "#fff",
               opacity: loading ? 0.6 : 1,
             }}
           />
-
           <button
             onClick={handleSend}
             disabled={loading}
@@ -268,14 +258,25 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
               padding: "0.6rem 0.9rem",
               borderRadius: "8px",
               backgroundColor: "#222",
+              backdropFilter: "blur(10px)",
               border: "1px solid #444",
               color: "#fff",
               cursor: loading ? "not-allowed" : "pointer",
               marginRight: "2rem",
               opacity: loading ? 0.6 : 1,
+              overflow: "hidden",
             }}
           >
-            ➤
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+              className={animatePlane ? "plane-fly" : ""}
+            >
+              <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z" />
+            </svg>
           </button>
         </div>
       </div>
