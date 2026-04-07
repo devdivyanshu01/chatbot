@@ -34,7 +34,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/chat", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,27 +42,16 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
         body: JSON.stringify({ message: userMessage.text }),
       });
 
-      const data = await res.json();
+      const data = await response.json(); // ✅ always parse
 
-      if (!res.ok) {
+      if (!response.ok) {
         throw new Error(data?.error || "Server error");
       }
 
-      let botReply;
-
-      // ✅ IMAGE RESPONSE
-      if (data.type === "image") {
-        botReply = {
-          sender: "bot",
-          image: data.image,
-        };
-      } else {
-        // ✅ TEXT RESPONSE
-        botReply = {
-          sender: "bot",
-          text: data?.reply || "⚠ No reply from server",
-        };
-      }
+      const botReply = {
+        sender: "bot",
+        text: data?.reply || "⚠ No reply from server",
+      };
 
       setChats((prev) =>
         prev.map((chat) =>
@@ -110,6 +99,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
           .chat-input { padding: 0.4rem 0.6rem !important; max-height: 50px; }
           .chat-input input { padding: 0.4rem 0.6rem !important; font-size: 0.85rem; max-height: 30px; }
           .chat-input button { padding: 0.4rem 0.6rem !important; font-size: 0.85rem; margin-right: 1rem !important; max-height: 30px; }
+          .msg{ marginTop: '0'; marginBottom: '0'; bottom: 60px; }
         }
 
         @keyframes planeFly {
@@ -204,29 +194,10 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
                     msg.sender === "bot" ? "#2c2c2c" : "#000000ff",
                   border: "1px solid #333",
                   fontSize: "0.95rem",
-                  whiteSpace: "pre-wrap",
+                  whiteSpace: "pre-wrap", // ✅ FIX: handle \n properly
                 }}
               >
-                {/* ✅ SHOW IMAGE IF EXISTS */}
-                {msg.image ? (
-                  // <img
-                  //   src={`data:image/png;base64,${msg.image}`}
-                  //   alt="AI generated"
-                  //   style={{
-                  //     maxWidth: "100%",
-                  //     borderRadius: "10px",
-                  //   }}
-                  // />
-                  <img src={msg.image} 
-                  alt="AI generated"
-                    style={{
-                      maxWidth: "100%",
-                      borderRadius: "10px",
-                    }}
-                  />
-                ) : (
-                  msg.text
-                )}
+                {msg.text}
               </div>
             </div>
           ))}
@@ -262,6 +233,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
               borderRadius: "8px",
               border: "1px solid #444",
               backgroundColor: "#1a1a1a",
+              backdropFilter: "blur(10px)",
               color: "#fff",
               opacity: loading ? 0.6 : 1,
             }}
@@ -273,6 +245,7 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
               padding: "0.6rem 0.9rem",
               borderRadius: "8px",
               backgroundColor: "#222",
+              backdropFilter: "blur(10px)",
               border: "1px solid #444",
               color: "#fff",
               cursor: loading ? "not-allowed" : "pointer",
@@ -281,7 +254,16 @@ const ChatScreen = ({ chats, currentChatId, setChats, onNewChat }) => {
               overflow: "hidden",
             }}
           >
-            ✈
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              fill="currentColor"
+              viewBox="0 0 16 16"
+              className={animatePlane ? "plane-fly" : ""}
+            >
+              <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z" />
+            </svg>
           </button>
         </div>
       </div>
