@@ -59,7 +59,6 @@ export default async function handler(req, res) {
     const models = [
       "gemini-2.5-flash",   // fastest + best
       "gemini-1.5-flash",   // fallback
-      "gemini-1.5-pro",     // high quality fallback
     ];
 
     let reply = null;
